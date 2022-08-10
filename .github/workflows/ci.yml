@@ -163,8 +163,8 @@ jobs:
             tox: py39
             action: 3.9
         task:
-          - name: Check Newsfragment
-            tox: check-newsfragment
+          - name: Run pre-commit
+            tox: pre-commit
 
     steps:
     - uses: actions/checkout@v3
