@@ -1,19 +1,22 @@
 Hear ye, hear ye, says the ``towncrier``
 ========================================
 
-.. image:: https://img.shields.io/github/workflow/status/twisted/towncrier/CI/master
+.. image:: https://img.shields.io/github/workflow/status/shiftinv/towncrier/CI/custom
     :alt: GitHub Actions
-    :target: https://github.com/twisted/towncrier/actions?query=branch%3Amaster
-
-.. image:: https://img.shields.io/codecov/c/github/twisted/towncrier/master
-    :alt: Codecov
-    :target: https://app.codecov.io/gh/twisted/towncrier/branch/master
+    :target: https://github.com/shiftinv/towncrier/actions?query=branch%3Acustom
 
 
 ``towncrier`` is a utility to produce useful, summarised news files for your project.
 Rather than reading the Git history as some newer tools to produce it, or having one single file which developers all write to, ``towncrier`` reads "news fragments" which contain information `useful to end users`.
 
 Used by `Twisted <https://github.com/twisted/twisted>`_, `pytest <https://github.com/pytest-dev/pytest/>`_, `pip <https://github.com/pypa/pip/>`_, `BuildBot <https://github.com/buildbot/buildbot>`_, and `attrs <https://github.com/python-attrs/attrs>`_, among others.
+
+
+Note
+----
+
+This is a fork of the `towncrier <https://github.com/twisted/towncrier>`_ project that implements some additional features we use for `disnake <https://github.com/DisnakeDev/disnake>`_.
+See the `diff <https://github.com/twisted/towncrier/compare/trunk...shiftinv:towncrier:custom>`_ for all changes.
 
 
 Philosophy
