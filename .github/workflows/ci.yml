@@ -94,17 +94,12 @@ jobs:
         python-version: ${{ matrix.python.action }}
 
     - name: Install dependencies
-      run: python -m pip install --upgrade pip tox codecov
+      run: python -m pip install --upgrade pip tox
 
     - uses: twisted/python-info-action@v1
 
     - name: Tox
       run: tox -c tox.ini --installpkg dist/*.whl -e ${{ matrix.python.tox }}-tests
-
-    - name: Codecov
-      run: |
-        codecov -n "GitHub Actions - ${{ matrix.task.name}} - ${{ matrix.os.name }} ${{ matrix.python.name }}"
-
 
   test-windows:
     name: ${{ matrix.task.name}} - Windows ${{ matrix.python.name }}
@@ -137,16 +132,12 @@ jobs:
         python-version: ${{ matrix.python.action }}
 
     - name: Install dependencies
-      run: python -m pip install --upgrade pip tox codecov
+      run: python -m pip install --upgrade pip tox
 
     - uses: twisted/python-info-action@v1
 
     - name: Tox
       run: tox -c tox.ini --installpkg dist/*.whl -e ${{ matrix.python.tox }}-tests
-
-    - name: Codecov
-      run: |
-        codecov -n "GitHub Actions - ${{ matrix.task.name}} - ${{ matrix.os.name }} ${{ matrix.python.name }}"
 
   check:
     name: ${{ matrix.task.name}} - ${{ matrix.python.name }}
