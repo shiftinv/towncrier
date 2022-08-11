@@ -1043,3 +1043,125 @@ Deprecations and Removals
 
         self.assertEqual(0, result.exit_code, result.output)
         self.assertEqual(expected_output, result.output)
+
+    def test_link(self):
+        """
+        Linking fragments work as expected
+        """
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            setup_simple_project()
+            with open("foo/newsfragments/123.feature.rst", "w") as f:
+                f.write("Adds levitation")
+            with open("foo/newsfragments/123.bugfix.rst", "w") as f:
+                f.write("Fixes levitation")
+            with open("foo/newsfragments/456.feature.rst", "w") as f:
+                f.write("{{link:123}}")
+
+            result = runner.invoke(_main, ["--draft", "--date", "01-01-2001"])
+
+        self.assertEqual(0, result.exit_code)
+        self.assertEqual(
+            result.output,
+            dedent(
+                """
+            Loading template...
+            Finding news fragments...
+            Rendering news fragments...
+            Draft only -- nothing has been written.
+            What is seen below is what would be written.
+
+            Foo 1.2.3 (01-01-2001)
+            ======================
+
+            Features
+            --------
+
+            - Adds levitation (#123, #456)
+
+
+            Bugfixes
+            --------
+
+            - Fixes levitation (#123)
+
+            """
+            ).lstrip(),
+        )
+
+    def test_link_excess(self):
+        """
+        Fragment text like `abc {{link:123}} def` is not accepted
+        """
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            setup_simple_project()
+            with open("foo/newsfragments/123.feature.rst", "w") as f:
+                f.write("Adds levitation")
+            with open("foo/newsfragments/456.feature.rst", "w") as f:
+                f.write("more text that shouldn't be here {{link:123}}")
+
+            result = runner.invoke(_main, ["--draft", "--date", "01-01-2001"])
+
+        self.assertEqual(type(result.exception), ValueError)
+        self.assertIn(
+            "Fragment link (456.feature.0) contains excess text", str(result.exception)
+        )
+
+    def test_link_invalid_target(self):
+        """
+        Fragment text like `abc {{link:notanumber.0}} def` is not accepted
+        """
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            setup_simple_project()
+            with open("foo/newsfragments/123.feature.rst", "w") as f:
+                f.write("Adds levitation")
+            with open("foo/newsfragments/456.feature.rst", "w") as f:
+                f.write("{{link:notanumber.0}}")
+
+            result = runner.invoke(_main, ["--draft", "--date", "01-01-2001"])
+
+        self.assertEqual(type(result.exception), ValueError)
+        self.assertIn("Invalid link target `notanumber.0`", str(result.exception))
+
+    def test_link_unknown_target(self):
+        """
+        If a link targets an unknown fragment, it shouldn't be accepted
+        """
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            setup_simple_project()
+            with open("foo/newsfragments/123.feature.rst", "w") as f:
+                f.write("Adds levitation")
+            with open("foo/newsfragments/456.feature.rst", "w") as f:
+                f.write("{{link:999}}")
+
+            result = runner.invoke(_main, ["--draft", "--date", "01-01-2001"])
+
+        self.assertEqual(type(result.exception), ValueError)
+        self.assertIn("Unable to find target fragment `999`", str(result.exception))
+
+    def test_link_unknown_target_wrong_category(self):
+        """
+        Links should only work within the same category;
+        if the ID matches a fragment in a different category,
+        it should still not be accepted.
+        """
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            setup_simple_project()
+            with open("foo/newsfragments/123.bugfix.rst", "w") as f:
+                f.write("Adds levitation")
+            with open("foo/newsfragments/456.feature.rst", "w") as f:
+                f.write("{{link:123}}")
+
+            result = runner.invoke(_main, ["--draft", "--date", "01-01-2001"])
+
+        self.assertEqual(type(result.exception), ValueError)
+        self.assertIn("Unable to find target fragment `123`", str(result.exception))
