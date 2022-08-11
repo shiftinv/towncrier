@@ -3,10 +3,11 @@
 
 
 import os
+import re
 import textwrap
 import traceback
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from jinja2 import Template
 
@@ -144,9 +145,37 @@ def split_fragments(fragments, definitions, all_bullets=True):
     output = OrderedDict()
 
     for section_name, section_fragments in fragments.items():
-        section = {}
+        section = defaultdict(OrderedDict)
 
         for (ticket, category, counter), content in section_fragments.items():
+
+            # Search for substring like `{{link:123}}`
+            match = re.search(r"\{\{link:(.*)\}\}", content)
+            if match:
+                # If found, ensure the file doesn't contain anything else
+                full_match, target_expr = match.group(0, 1)
+                if len(full_match) != len(content.strip()):
+                    raise ValueError(
+                        f"Fragment link ({ticket}.{category}.{counter}) contains excess text"
+                    )
+
+                # Extract target fragment ID, and optionally counter, from string like `123.1`
+                match = re.fullmatch(r"(\d+)(?:\.(\d+))?", target_expr)
+                if not match:
+                    raise ValueError(f"Invalid link target `{target_expr}`")
+
+                # Look for fragment with given ID and counter, in the same category
+                # (defaulting to counter 0 if not provided, i.e. `123.0` is equivalent to `123`)
+                target_id, target_counter = match.groups()
+                target_fragment = section_fragments.get(
+                    (target_id, category, target_counter or 0)
+                )
+                if not target_fragment:
+                    raise ValueError(f"Unable to find target fragment `{target_expr}`")
+
+                # Use text of target fragment for current fragment,
+                # since the result fragments are grouped based on their text
+                content = target_fragment
 
             if all_bullets:
                 # By default all fragmetns are append by "-" automatically,
@@ -160,14 +189,12 @@ def split_fragments(fragments, definitions, all_bullets=True):
             if definitions[category]["showcontent"] is False:
                 content = ""
 
-            texts = section.get(category, OrderedDict())
+            texts = section[category]
 
             if texts.get(content):
                 texts[content] = sorted(texts[content] + [ticket])
             else:
                 texts[content] = [ticket]
-
-            section[category] = texts
 
         output[section_name] = section
 

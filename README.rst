@@ -15,7 +15,10 @@ Used by `Twisted <https://github.com/twisted/twisted>`_, `pytest <https://github
 Note
 ----
 
-This is a fork of the `towncrier <https://github.com/twisted/towncrier>`_ project that implements some additional features we use for `disnake <https://github.com/DisnakeDev/disnake>`_.
+This is a fork of the `towncrier <https://github.com/twisted/towncrier>`_ project that implements some additional features we use for `disnake <https://github.com/DisnakeDev/disnake>`_:
+
+- Support for linking changelog fragments to others (within the same category) using ``{{link:123}}``
+
 See the `diff <https://github.com/twisted/towncrier/compare/trunk...shiftinv:towncrier:custom>`_ for all changes.
 
 
