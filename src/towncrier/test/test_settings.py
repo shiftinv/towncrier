@@ -269,13 +269,6 @@ package = "foobar"
         toml_content = textwrap.dedent(toml_content)
         expected = [
             (
-                "chore",
-                {
-                    "name": "Other Tasks",
-                    "showcontent": False,
-                },
-            ),
-            (
                 "feat",
                 {
                     "name": "Feat",
@@ -287,6 +280,13 @@ package = "foobar"
                 {
                     "name": "Fix",
                     "showcontent": True,
+                },
+            ),
+            (
+                "chore",
+                {
+                    "name": "Other Tasks",
+                    "showcontent": False,
                 },
             ),
         ]

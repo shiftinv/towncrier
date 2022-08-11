@@ -113,7 +113,6 @@ class TableFragmentTypesLoader(BaseFragmentTypesLoader):
     def load(self):
         """Load types from nested mapping."""
         fragment_types = self.fragment_options.keys()
-        fragment_types = sorted(fragment_types)
         custom_types_sequence = [
             (fragment_type, self._load_options(fragment_type))
             for fragment_type in fragment_types
